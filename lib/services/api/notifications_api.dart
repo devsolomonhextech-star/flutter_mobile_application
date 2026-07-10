@@ -11,9 +11,7 @@ class NotificationsApi {
     final session = Get.find<SessionService>();
     final token = session.token;
 
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
     if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
@@ -30,10 +28,7 @@ class NotificationsApi {
       '$baseUrl/notifications/get-notifications/?staffId=${Uri.encodeQueryComponent(staffId)}&includeRead=${includeRead ? 'true' : 'false'}',
     );
 
-    final resp = await http.get(
-      url,
-      headers: _authHeaders(),
-    );
+    final resp = await http.get(url, headers: _authHeaders());
 
     final body = _decodeBody(resp);
     print('NotificationsApi.getMyNotifications response: $body');
@@ -45,31 +40,24 @@ class NotificationsApi {
     throw Exception((body['error'] ?? body['message'] ?? 'Failed').toString());
   }
 
-  static Future<int> getUnreadCount({required String staffId}) async {
+  static Future<int> getMyUnreadNotifications({
+    required String staffId, 
+  }) async {
     final url = Uri.parse(
-      '$baseUrl/notifications/unread-count?staffId=${Uri.encodeQueryComponent(staffId)}',
+      '$baseUrl/notifications/get-unread-count/?staffId=${Uri.encodeQueryComponent(staffId)}',
     );
 
-    final resp = await http.get(
-      url,
-      headers: _authHeaders(),
-    );
+    final resp = await http.get(url, headers: _authHeaders());
 
     final body = _decodeBody(resp);
+    print('NotificationsApi.getMyUnreadNotifications response: ${body['unreadCount']}');
 
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      // Backend responses may vary in shape (unreadCount vs data.unreadCount)
-      final dynamic count =
-          body['unreadCount'] ?? body['count'] ?? body['data']?['unreadCount'];
-
-      if (count is int) return count;
-      if (count is String) return int.tryParse(count) ?? 0;
-      return 0;
+      return body['unreadCount'];
     }
 
     throw Exception((body['error'] ?? body['message'] ?? 'Failed').toString());
   }
-
 
   static Future<void> markNotificationsAsRead({
     required String staffId,
@@ -121,4 +109,3 @@ class NotificationsApi {
     return {};
   }
 }
-

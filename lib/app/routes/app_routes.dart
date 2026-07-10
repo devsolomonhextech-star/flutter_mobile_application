@@ -1,7 +1,9 @@
 import 'package:doctor_app/pages/chat/department_list_screen.dart';
 import 'package:doctor_app/pages/profile/leave_request.dart';
 import 'package:doctor_app/pages/profile/profile_settings_screen.dart';
+import 'package:doctor_app/pages/profile/report_screen.dart';
 import 'package:doctor_app/pages/profile/staff_rotation.dart';
+import 'package:doctor_app/pages/profile/stepper/leave_request_stepper.dart';
 import 'package:doctor_app/pages/qrcode/qrcode_screen.dart';
 import 'package:get/get.dart';
 
@@ -22,6 +24,7 @@ class AppRoutes {
   static const notifications = '/notifications';
   static const leave = '/leave-requests';
   static const duty_roster = '/duty-roster';
+  static const report_bug = '/report_bug';
 
   static final routes = [
     GetPage(
@@ -81,5 +84,11 @@ class AppRoutes {
       page: () => const StaffRotation(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: report_bug,
+      page: () => const ReportScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    
   ];
 }

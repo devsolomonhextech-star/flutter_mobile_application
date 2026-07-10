@@ -278,8 +278,8 @@ class _HomePageState extends State<HomePage> {
     if (staffId == null || staffId.isEmpty) return;
 
     try {
-      final count = await NotificationsApi.getUnreadCount(staffId: staffId);
-      _unreadCount.value = count;
+      final unread = await NotificationsApi.getMyUnreadNotifications(staffId: staffId);
+      _unreadCount.value = unread;
     } catch (_) {
       _unreadCount.value = 0;
     }
@@ -1151,7 +1151,7 @@ class _HomePageState extends State<HomePage> {
           child: _buildQuickActionButton(
             '📊',
             'Reports',
-            () => Get.toNamed('/reports'),
+            () => Get.toNamed('/report_bug'),
             Colors.purple.shade50,
             Colors.purple.shade700,
           ),

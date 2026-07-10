@@ -58,7 +58,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
       _applyFilter();
 
-      final unread = await NotificationsApi.getUnreadCount(staffId: staffId);
+      final unread = await NotificationsApi.getMyUnreadNotifications(staffId: staffId);
       setState(() => _unreadCount = unread);
     } catch (e) {
       debugPrint('Failed to load notifications: $e');

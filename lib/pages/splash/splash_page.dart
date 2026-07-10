@@ -19,12 +19,12 @@ class SplashPage extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Colors.blue.shade700,
-              Colors.blue.shade600,
-              Colors.blue.shade400,
+              const Color(0xFF1E3A5F),
+              const Color(0xFF2563EB),
+              const Color(0xFF3B82F6),
             ],
           ),
         ),
@@ -33,183 +33,119 @@ class SplashPage extends StatelessWidget {
             children: [
               // Background Decorative Circles
               Positioned(
-                top: -80,
-                right: -80,
+                top: -100,
+                right: -100,
+                child: Container(
+                  width: 250,
+                  height: 250,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.03),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -80,
+                left: -80,
                 child: Container(
                   width: 200,
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withOpacity(0.03),
                   ),
                 ),
               ),
               Positioned(
-                bottom: -60,
-                left: -60,
+                top: 200,
+                right: -60,
                 child: Container(
                   width: 150,
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withOpacity(0.02),
                   ),
                 ),
               ),
               Positioned(
-                top: 100,
-                left: -40,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.03),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 150,
-                right: -30,
+                bottom: 200,
+                left: -50,
                 child: Container(
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.03),
+                    color: Colors.white.withOpacity(0.02),
                   ),
                 ),
               ),
-              // Main Content
+              // Main Content - Only Logo
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Container with Animation
+                    // Logo with Animation
                     TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.8, end: 1.0),
-                      duration: const Duration(milliseconds: 800),
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 1200),
                       curve: Curves.easeOutBack,
-                      builder: (context, scale, child) {
+                      builder: (context, progress, child) {
                         return Transform.scale(
-                          scale: scale,
-                          child: child,
+                          scale: 0.7 + (0.3 * progress),
+                          child: Opacity(
+                            opacity: progress.clamp(0.0, 1.0),
+                            child: child,
+                          ),
                         );
                       },
                       child: Container(
-                        width: 120,
-                        height: 120,
+                        width: 180,
+                        height: 180,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(50),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 50,
+                              offset: const Offset(0, 20),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.medical_services_outlined,
-                          size: 60,
-                          color: Color(0xFF2563EB),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // App Name with Animation
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 600),
-                      curve: Curves.easeOut,
-                      builder: (context, opacity, child) {
-                        return Opacity(
-                          opacity: opacity,
-                          child: child,
-                        );
-                      },
-                      child: Column(
-                        children: [
-                          Text(
-                            'Hospital Management',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: -0.5,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: Container(
+                            padding: const EdgeInsets.all(30),
+                            child: Center(
+                              child: SvgPicture.string(
+                                '''
+                                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <!-- Outer Circle -->
+                                  <circle cx="12" cy="12" r="11" stroke="#2563EB" stroke-width="2"/>
+                                  
+                                  <!-- Medical Cross -->
+                                  <rect x="10.5" y="4" width="3" height="16" rx="1.5" fill="#2563EB"/>
+                                  <rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#2563EB"/>
+                                  
+                                  <!-- Inner Circle -->
+                                  <circle cx="12" cy="12" r="4" fill="#2563EB" opacity="0.2"/>
+                                  
+                                  <!-- Heart Beat -->
+                                  <path d="M7 12L9 12L10 9L12 15L13 12L15 12" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                </svg>
+                                ''',
+                                width: 80,
+                                height: 80,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'System',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Subtitle
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeOut,
-                      builder: (context, opacity, child) {
-                        return Opacity(
-                          opacity: opacity,
-                          child: child,
-                        );
-                      },
-                      child: Text(
-                        'Healthcare Management at your fingertips',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.85),
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.3,
                         ),
                       ),
                     ),
                     const SizedBox(height: 60),
-                    // Loading Indicator
-                    Column(
-                      children: [
-                        // Animated Dots
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildDot(0, 0),
-                            const SizedBox(width: 8),
-                            _buildDot(1, 200),
-                            const SizedBox(width: 8),
-                            _buildDot(2, 400),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading...',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white.withOpacity(0.7),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 40),
-                    // Version
-                    Text(
-                      'Version 1.0.0',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.4),
-                      ),
-                    ),
+                    // Loading Dots
+                    _buildLoadingDots(),
                   ],
                 ),
               ),
@@ -220,21 +156,85 @@ class SplashPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDot(int index, int delay) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0.4, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeInOut,
-      // delay: Duration(milliseconds: delay),
-      builder: (context, value, child) {
+  Widget _buildLoadingDots() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: _AnimatedDot(
+            delay: Duration(milliseconds: index * 300),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _AnimatedDot extends StatefulWidget {
+  final Duration delay;
+
+  const _AnimatedDot({required this.delay});
+
+  @override
+  State<_AnimatedDot> createState() => _AnimatedDotState();
+}
+
+class _AnimatedDotState extends State<_AnimatedDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Add delay
+    Future.delayed(widget.delay, () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        final value = _animation.value.clamp(0.0, 1.0);
         return Transform.scale(
           scale: value,
           child: Container(
-            width: 10,
-            height: 10,
+            width: 14,
+            height: 14,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(value * 0.8),
+              color: Colors.white.withOpacity(value * 0.9),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(value * 0.3),
+                  blurRadius: 15,
+                  spreadRadius: 3,
+                ),
+              ],
             ),
           ),
         );
