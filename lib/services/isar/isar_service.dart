@@ -1,7 +1,6 @@
 import 'package:doctor_app/data/models/user_models.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/widgets.dart';
 
 class IsarService {
   static late Isar isar;
@@ -28,6 +27,10 @@ class IsarService {
       print(
         '   firstName=${user.firstName} lastName=${user.lastName} email=${user.email}',
       );
+
+      print(
+        '   institution=${user.institution} institutionId=${user.institutionId}',
+      );
       await isar.userModels.put(user);
 
       // Log what was saved
@@ -40,6 +43,8 @@ class IsarService {
       print('   StaffID: ${saved?.staffID}');
       print('   Email: ${saved?.email}');
       print('   Token: ${saved?.token?.substring(0, 20)}...');
+      print('   Institution: ${saved?.institution}');
+      print('   InstitutionID: ${saved?.institutionId}');
     });
   }
 
@@ -203,6 +208,32 @@ class IsarService {
         user.userGroup = ugVal is Map
             ? ugVal['name']?.toString()
             : ugVal?.toString();
+
+        // Update IDs too (backend can return either objects or flat id fields)
+        final instValue = userData['institution'];
+        if (instValue is Map) {
+          user.institutionId =
+              instValue['id']?.toString() ?? user.institutionId;
+        } else {
+          final instIdFlat =
+              userData['institution_id']?.toString() ??
+              userData['institutionId']?.toString();
+          if (instIdFlat != null && instIdFlat.isNotEmpty) {
+            user.institutionId = instIdFlat;
+          }
+        }
+
+        final deptValue = userData['department'];
+        if (deptValue is Map) {
+          user.departmentId = deptValue['id']?.toString() ?? user.departmentId;
+        } else {
+          final deptIdFlat =
+              userData['department_id']?.toString() ??
+              userData['departmentId']?.toString();
+          if (deptIdFlat != null && deptIdFlat.isNotEmpty) {
+            user.departmentId = deptIdFlat;
+          }
+        }
 
         // Keep existing values if backend doesn't return them.
         user.role = user.role ?? user.role;

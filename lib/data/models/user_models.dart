@@ -242,7 +242,7 @@ class UserModel {
         s.institution?.toString();
     model.institutionId =
         (instObj != null ? instObj['id'] : null)?.toString() ??
-        rawMap?['institution_id']?.toString() ??
+        rawMap?['id']?.toString() ??
         s.institutionId?.toString() ??
         s.institution_id?.toString();
 

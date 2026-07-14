@@ -1,4 +1,5 @@
 // department_list_screen.dart
+import 'package:doctor_app/data/models/visit_related_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
@@ -305,7 +306,7 @@ class _DepartmentListScreenState extends State<DepartmentListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          _connectSocket(department.id);
+          _connectSocket(department.id ?? '');
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -320,14 +321,14 @@ class _DepartmentListScreenState extends State<DepartmentListScreen> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              _buildDepartmentAvatar(department.name),
+              _buildDepartmentAvatar(department.name ?? 'D'),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      department.name,
+                      department.name ?? '',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -434,7 +435,7 @@ class DepartmentSearchDelegate extends SearchDelegate<Department?> {
   @override
   Widget buildResults(BuildContext context) {
     final results = departments.where((dept) =>
-        dept.name.toLowerCase().contains(query.toLowerCase())).toList();
+        dept.name!.toLowerCase().contains(query.toLowerCase())).toList();
     return _buildResultsList(results);
   }
 
@@ -457,7 +458,7 @@ class DepartmentSearchDelegate extends SearchDelegate<Department?> {
     }
 
     final suggestions = departments.where((dept) =>
-        dept.name.toLowerCase().contains(query.toLowerCase())).toList();
+        dept.name!.toLowerCase().contains(query.toLowerCase())).toList();
     return _buildResultsList(suggestions);
   }
 
@@ -493,7 +494,7 @@ class DepartmentSearchDelegate extends SearchDelegate<Department?> {
             ),
             child: Center(
               child: Text(
-                department.name.substring(0, 1).toUpperCase(),
+                department.name!.substring(0, 1).toUpperCase(),
                 style: TextStyle(
                   color: Colors.blue.shade700,
                   fontWeight: FontWeight.w700,
@@ -501,29 +502,12 @@ class DepartmentSearchDelegate extends SearchDelegate<Department?> {
               ),
             ),
           ),
-          title: Text(department.name),
+          title: Text(department.name ?? ''),
           onTap: () {
             close(context, department);
           },
         );
       },
-    );
-  }
-}
-
-class Department {
-  final String id;
-  final String name;
-
-  Department({
-    required this.id,
-    required this.name,
-  });
-
-  factory Department.fromJson(Map<String, dynamic> json) {
-    return Department(
-      id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? 'Unknown',
     );
   }
 }

@@ -95,13 +95,27 @@ class AuthApiWithIsar extends AuthApi {
 
       // Map institution from backend payload.
       // Backend sends `institution: {id, name, ...}` and also `institution_id` (snake_case).
+      // Institution
       final instId =
           (userRaw['institution_id'] ?? userRaw['institutionId'])?.toString();
       final instObj = userRaw['institution'];
-      final instObjMap = (instObj is Map) ? instObj.cast<String, dynamic>() : null;
+      final instObjMap = (instObj is Map)
+          ? instObj.cast<String, dynamic>()
+          : null;
       final instIdFromObj = instObjMap?['id']?.toString();
       final institutionName =
           (instObjMap?['name']?.toString() ?? userRaw['institution_name']?.toString());
+
+      // Department
+      final deptId =
+          (userRaw['department_id'] ?? userRaw['departmentId'])?.toString();
+      final deptObj = userRaw['department'];
+      final deptObjMap = (deptObj is Map)
+          ? deptObj.cast<String, dynamic>()
+          : null;
+      final deptIdFromObj = deptObjMap?['id']?.toString();
+      final departmentName =
+          (deptObjMap?['name']?.toString() ?? userRaw['department_name']?.toString());
 
       final userModel = UserModel()
         ..userId =
@@ -126,10 +140,9 @@ class AuthApiWithIsar extends AuthApi {
         ..phoneNumber =
             (userRaw['phone_number'] ?? userRaw['phoneNumber'] ?? userRaw['phone'])
                 ?.toString()
-        // Department field on UserModel expects a Department? object.
-        // The API returns a string/id, so we can't assign a String directly.
-        // For now, leave department null if we cannot construct a Department object here.
-        ..department = null
+        // These are stored as names + ids in Isar (not Department objects).
+        ..department = departmentName
+        ..departmentId = (deptIdFromObj ?? deptId)?.toString()
         ..institutionId = (instIdFromObj ?? instId)?.toString()
         ..institution = institutionName
         ..adminId = (userRaw['admin_id'] ?? userRaw['adminId'])?.toString()

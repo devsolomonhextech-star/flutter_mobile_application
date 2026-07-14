@@ -1,4 +1,7 @@
+import 'package:doctor_app/pages/appointments/upcoming_doctor_appointments_page.dart';
 import 'package:doctor_app/pages/chat/department_list_screen.dart';
+import 'package:doctor_app/pages/patient/patient_list_screen.dart';
+import 'package:doctor_app/pages/patient/patient_visit_details_screen.dart';
 import 'package:doctor_app/pages/profile/leave_request.dart';
 import 'package:doctor_app/pages/profile/profile_settings_screen.dart';
 import 'package:doctor_app/pages/profile/report_screen.dart';
@@ -25,6 +28,9 @@ class AppRoutes {
   static const leave = '/leave-requests';
   static const duty_roster = '/duty-roster';
   static const report_bug = '/report_bug';
+  static const appointment = '/appointments';
+  static const patients = '/patients';
+  static const patientVisitDetails = '/patient-visit-details';
 
   static final routes = [
     GetPage(
@@ -89,6 +95,25 @@ class AppRoutes {
       page: () => const ReportScreen(),
       transition: Transition.rightToLeft,
     ),
-    
+    GetPage(
+      name: appointment,
+      page: () => const UpcomingDoctorAppointmentsPage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: patients,
+      page: () => const PatientListScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: patientVisitDetails,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final visitId = (args?['visitId'] ?? '').toString();
+        return PatientVisitDetailsScreen(visitId: visitId);
+      },
+      transition: Transition.rightToLeft,
+    ),
+
   ];
 }

@@ -47,6 +47,8 @@ dependencies:
   qr_flutter: ^4.1.0
   intl: ^0.20.3
   timeline_tile: ^2.0.0
+  rive: ^0.14.9
+  flutter_staggered_animations: ^1.1.1
 
 
 dev_dependencies:

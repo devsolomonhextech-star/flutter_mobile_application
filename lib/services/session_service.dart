@@ -53,6 +53,7 @@ class SessionService extends GetxService {
         ..lastLogin = DateTime.now();
 
       if (userData != null) {
+        print('User data received: $userData'); // Debug log
         newUser.username = userData['username']?.toString();
         newUser.email = userData['email']?.toString();
         newUser.firstName = userData['firstName']?.toString();
@@ -63,10 +64,24 @@ class SessionService extends GetxService {
         newUser.institution = userData['institution']?.toString();
         newUser.staffId = userData['staffId']?.toString();
         newUser.extraData = userData;
+        // institution_id may come from nested institution OR from flat field.
+        newUser.institutionId =
+            userData['institution']?['id']?.toString() ??
+            userData['institution_id']?.toString() ??
+            userData['id']?.toString();
+
+        // department_id may come from nested department OR from flat field.
+        newUser.departmentId =
+            userData['department']?['id']?.toString() ??
+            userData['department_id']?.toString() ??
+            newUser.departmentId;
       }
 
+      // Always persist the extracted IDs so controllers can read them from Isar.
       await IsarService.saveUser(newUser);
       currentUser.value = newUser;
+
+      print('Saved session institutionId=${newUser.institutionId} departmentId=${newUser.departmentId}');
     }
 
     isAuthenticated.value = true;

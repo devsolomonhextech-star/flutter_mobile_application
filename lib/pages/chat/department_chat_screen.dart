@@ -1,4 +1,5 @@
 // department_chat_screen.dart
+import 'package:doctor_app/data/models/visit_related_models.dart';
 import 'package:doctor_app/pages/chat/department_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -43,7 +44,7 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
     final departmentId = widget.department.id;
     final institutionId = _institutionId;
 
-    if (userId == null || departmentId.isEmpty || institutionId == null) {
+    if (userId == null || departmentId!.isEmpty || institutionId == null) {
       print('Missing required connection info');
       return;
     }
@@ -124,7 +125,7 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.grey.shade800),
         onPressed: () {
-          chat.leaveDepartmentThread(threadDepartmentId: widget.department.id);
+          chat.leaveDepartmentThread(threadDepartmentId: widget.department.id ?? '');
           Navigator.pop(context);
         },
       ),
@@ -134,12 +135,12 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _getAvatarColor(widget.department.name),
+              color: _getAvatarColor(widget.department.name ?? ''),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: Text(
-                widget.department.name.substring(0, 1).toUpperCase(),
+                widget.department.name!.substring(0, 1).toUpperCase(),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -154,7 +155,7 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.department.name,
+                  widget.department.name ?? 'Department',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -386,8 +387,8 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
     if (userId == null || institutionId == null) return;
 
     chat.sendDepartmentMessage(
-      fromDepartmentId: departmentId,
-      toDepartmentId: departmentId,
+      fromDepartmentId: departmentId ?? '',
+      toDepartmentId: departmentId ?? '',
       content: text,
       institutionId: institutionId,
       senderId: userId,

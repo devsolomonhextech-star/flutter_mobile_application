@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'package:doctor_app/data/constants/urls.dart';
 import 'package:doctor_app/data/models/auth_models.dart';
 import 'package:http/http.dart' as http;
 
 /// Base Auth API class with core authentication methods
 class AuthApi {
-  static const String baseUrl = 'http://localhost:5001/api/v1';
-  static const String loginEndpoint = '/auth/login';
+
 
   static Future<LoginResponse> loginStaff({
     required String staffId,
