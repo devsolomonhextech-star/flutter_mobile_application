@@ -1,6 +1,7 @@
 // lib/app/modules/patient_visit_details/views/patient_visit_details_screen.dart
 import 'package:doctor_app/data/models/visit_models.dart';
 import 'package:doctor_app/data/models/visit_related_models.dart';
+import 'package:doctor_app/pages/patient/widgets/patient_ai_summary_screen.dart';
 import 'package:doctor_app/services/controller/visit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:doctor_app/pages/patient/widgets/patient_notes_tab.dart';
@@ -148,6 +149,13 @@ class _PatientVisitDetailsScreenState extends State<PatientVisitDetailsScreen>
       backgroundColor: Colors.transparent,
       builder: (_) => _AddAppointmentSheet(onSubmit: _submitAppointment),
     );
+  }
+
+  // on open ai
+  Future<void> _openAiSummary() async {
+    _closeFab();
+    Get.to(() => PatientAiSummaryScreen(visitId: widget.visitId),transition: Transition.rightToLeft);
+    
   }
 
   void _submitVitals(Map<String, dynamic> values) {
@@ -319,6 +327,14 @@ class _PatientVisitDetailsScreenState extends State<PatientVisitDetailsScreen>
           icon: Icons.monitor_heart_rounded,
           color: _T.vitals,
           onTap: _openAddVitals,
+        ),
+        _MiniFabAction(
+          controller: _fabController,
+          index: 2,
+          label: 'Ai Summary',
+          icon: Icons.precision_manufacturing_outlined,
+          color: _T.vitals,
+          onTap: _openAiSummary,
         ),
         const SizedBox(height: 14),
         GestureDetector(

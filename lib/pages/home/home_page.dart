@@ -949,7 +949,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             children: [
               _buildActionButton(Icons.chat, 'Chat', Colors.blue, () => Get.toNamed('/chat')),
               const SizedBox(width: 12),
-              _buildActionButton(Icons.assignment, 'Reports', Colors.purple, () => Get.toNamed('/reports')),
+              _buildActionButton(Icons.calendar_month, 'Duty Roster', Colors.purple, () => Get.toNamed('/duty-roster')),
               const SizedBox(width: 12),
               _buildActionButton(Icons.supervised_user_circle_sharp, 'Patients', Colors.grey, () => Get.toNamed('/patients')),
             ],

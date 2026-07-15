@@ -28,9 +28,9 @@ class _T {
 
 Color _typeColor(String? type) {
   switch ((type ?? '').toLowerCase()) {
-    case 'info':
+    case 'Comment':
       return _T.info;
-    case 'success':
+    case 'Message':
       return _T.success;
     case 'warning':
       return _T.warning;
