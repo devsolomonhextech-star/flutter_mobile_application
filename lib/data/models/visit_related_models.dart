@@ -1,4 +1,7 @@
 // lib/data/models/visit_related_models.dart
+import 'package:doctor_app/services/api/staff_comment_model.dart';
+import 'package:doctor_app/services/api/staff_model.dart';
+
 class VitalSignsRecord {
   final String? id;
   final String? visitId;
@@ -57,28 +60,84 @@ class VitalSignsRecord {
 class PatientNote {
   final String? id;
   final String? visitId;
-  final String? note;
-  final DateTime? createdAt;
+  final String? staffId;
+  final String? institutionId;
 
-  PatientNote({this.id, this.visitId, this.note, this.createdAt});
+  final String? note;
+
+  final List<String>? taggedStaffIds;
+
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  final Staff? staff;
+  final List<StaffComment>? comments;
+  final List<Staff>? taggedStaffs;
+
+  PatientNote({
+    this.id,
+    this.visitId,
+    this.staffId,
+    this.institutionId,
+    this.note,
+    this.taggedStaffIds,
+    this.createdAt,
+    this.updatedAt,
+    this.staff,
+    this.comments,
+    this.taggedStaffs,
+  });
 
   factory PatientNote.fromJson(Map<String, dynamic> json) {
     return PatientNote(
-      id: json['id'] as String?,
-      visitId: json['visit_id'] as String?,
-      note: json['note'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+      id: json["id"],
+      visitId: json["visit_id"],
+      staffId: json["staff_id"],
+      institutionId: json["institution_id"],
+
+      note: json["note"],
+
+      taggedStaffIds:
+          (json["tagged_staff_ids"] as List?)
+              ?.map((e) => e.toString())
+              .toList(),
+
+      createdAt: json["createdAt"] != null
+          ? DateTime.tryParse(json["createdAt"])
           : null,
+
+      updatedAt: json["updatedAt"] != null
+          ? DateTime.tryParse(json["updatedAt"])
+          : null,
+
+      staff: json["staff"] != null
+          ? Staff.fromJson(json["staff"])
+          : null,
+
+      comments: (json["comments"] as List?)
+          ?.map(
+            (e) => StaffComment.fromJson(e),
+          )
+          .toList(),
+
+      taggedStaffs: (json["taggedStaffs"] as List?)
+          ?.map(
+            (e) => Staff.fromJson(e),
+          )
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'visit_id': visitId,
-      'note': note,
-      'createdAt': createdAt?.toIso8601String(),
+      "id": id,
+      "visit_id": visitId,
+      "staff_id": staffId,
+      "institution_id": institutionId,
+      "note": note,
+      "tagged_staff_ids": taggedStaffIds,
+      "createdAt": createdAt?.toIso8601String(),
+      "updatedAt": updatedAt?.toIso8601String(),
     };
   }
 }
@@ -370,5 +429,8 @@ class Department {
     };
   }
 }
+
+
+
 
 

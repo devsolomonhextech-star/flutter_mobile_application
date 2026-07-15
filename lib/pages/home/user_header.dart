@@ -35,7 +35,7 @@ class UserHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Good Morning, $name',
+                'Mr $name',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

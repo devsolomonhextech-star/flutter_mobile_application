@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../services/session_service.dart';
 import '../../services/controller/splash_controller.dart';
@@ -17,36 +16,47 @@ class SplashPage extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF1E3A5F),
-              const Color(0xFF2563EB),
-              const Color(0xFF3B82F6),
+              Color(0xFF6BD9B4),  // Mint green from login
+              Color(0xFF3EBE93),  // Teal from login
             ],
           ),
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              // Background Decorative Circles
+              // Background Decorative Elements - Subtle and minimal
               Positioned(
-                top: -100,
-                right: -100,
+                top: -120,
+                right: -120,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.05),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -100,
+                left: -100,
                 child: Container(
                   width: 250,
                   height: 250,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.03),
+                    color: Colors.white.withOpacity(0.04),
                   ),
                 ),
               ),
               Positioned(
-                bottom: -80,
-                left: -80,
+                top: 150,
+                right: -80,
                 child: Container(
                   width: 200,
                   height: 200,
@@ -57,42 +67,31 @@ class SplashPage extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 200,
-                right: -60,
+                bottom: 150,
+                left: -80,
                 child: Container(
-                  width: 150,
-                  height: 150,
+                  width: 180,
+                  height: 180,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.02),
+                    color: Colors.white.withOpacity(0.03),
                   ),
                 ),
               ),
-              Positioned(
-                bottom: 200,
-                left: -50,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.02),
-                  ),
-                ),
-              ),
-              // Main Content - Only Logo
+              
+              // Main Content - Clean Logo Center
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo with Animation
+                    // Logo with Fade and Scale Animation
                     TweenAnimationBuilder<double>(
                       tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 1200),
-                      curve: Curves.easeOutBack,
+                      duration: const Duration(milliseconds: 1000),
+                      curve: Curves.easeOutCubic,
                       builder: (context, progress, child) {
                         return Transform.scale(
-                          scale: 0.7 + (0.3 * progress),
+                          scale: 0.8 + (0.2 * progress),
                           child: Opacity(
                             opacity: progress.clamp(0.0, 1.0),
                             child: child,
@@ -100,53 +99,55 @@ class SplashPage extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        width: 180,
-                        height: 180,
+                        width: 160,
+                        height: 160,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
+                          borderRadius: BorderRadius.circular(32),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              blurRadius: 50,
-                              offset: const Offset(0, 20),
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 40,
+                              offset: const Offset(0, 15),
+                              spreadRadius: 2,
                             ),
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Container(
-                            padding: const EdgeInsets.all(30),
-                            child: Center(
-                              child: SvgPicture.string(
-                                '''
-                                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <!-- Outer Circle -->
-                                  <circle cx="12" cy="12" r="11" stroke="#2563EB" stroke-width="2"/>
-                                  
-                                  <!-- Medical Cross -->
-                                  <rect x="10.5" y="4" width="3" height="16" rx="1.5" fill="#2563EB"/>
-                                  <rect x="4" y="10.5" width="16" height="3" rx="1.5" fill="#2563EB"/>
-                                  
-                                  <!-- Inner Circle -->
-                                  <circle cx="12" cy="12" r="4" fill="#2563EB" opacity="0.2"/>
-                                  
-                                  <!-- Heart Beat -->
-                                  <path d="M7 12L9 12L10 9L12 15L13 12L15 12" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                </svg>
-                                ''',
-                                width: 80,
-                                height: 80,
-                              ),
-                            ),
+                          borderRadius: BorderRadius.circular(32),
+                          child: Image.asset(
+                            'assets/images/tonitel_.png',
+                            fit: BoxFit.contain,
+                            width: 120,
+                            height: 120,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 60),
-                    // Loading Dots
+                    
+                    const SizedBox(height: 50),
+                    
+                    // Minimal Loading Indicator
                     _buildLoadingDots(),
                   ],
+                ),
+              ),
+              
+              // Version Info at Bottom
+              Positioned(
+                bottom: 30,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Text(
+                    'Version 1.0.0',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -161,9 +162,9 @@ class SplashPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(3, (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           child: _AnimatedDot(
-            delay: Duration(milliseconds: index * 300),
+            delay: Duration(milliseconds: index * 200),
           ),
         );
       }),
@@ -189,18 +190,18 @@ class _AnimatedDotState extends State<_AnimatedDot>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 700),
       vsync: this,
     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(
+    _animation = Tween<double>(begin: 0.2, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOut,
       ),
     );
 
-    // Add delay
+    // Add delay for staggered effect
     Future.delayed(widget.delay, () {
       if (mounted) {
         _controller.forward();
@@ -223,18 +224,11 @@ class _AnimatedDotState extends State<_AnimatedDot>
         return Transform.scale(
           scale: value,
           child: Container(
-            width: 14,
-            height: 14,
+            width: 10,
+            height: 10,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(value * 0.9),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withOpacity(value * 0.3),
-                  blurRadius: 15,
-                  spreadRadius: 3,
-                ),
-              ],
+              color: Colors.white.withOpacity(0.4 + (0.6 * value)),
             ),
           ),
         );

@@ -8,6 +8,49 @@ import '../../data/models/notification_models.dart';
 import '../../services/api/notifications_api.dart';
 import '../../services/session_service.dart';
 
+/// Shared design tokens — same mint/teal palette used across the app.
+class _T {
+  static const bg = Color(0xFFF6FAF8);
+  static const surface = Colors.white;
+  static const primary = Color(0xFF3EBE93);
+  static const primaryDark = Color(0xFF2FA37D);
+  static const primarySoft = Color(0xFFE3F5EE);
+  static const textPrimary = Color(0xFF1F2A24);
+  static const textSecondary = Color(0xFF8B9892);
+  static const textMuted = Color(0xFFB7C0BB);
+  static const border = Color(0xFFE7ECE9);
+
+  static const info = Color(0xFF5B8DEF);
+  static const success = Color(0xFF3EBE93);
+  static const warning = Color(0xFFE0A94A);
+  static const error = Color(0xFFE0656B);
+}
+
+Color _typeColor(String? type) {
+  switch ((type ?? '').toLowerCase()) {
+    case 'info':
+      return _T.info;
+    case 'success':
+      return _T.success;
+    case 'warning':
+      return _T.warning;
+    case 'error':
+      return _T.error;
+    default:
+      return _T.textSecondary;
+  }
+}
+
+/// A single row in the grouped list — either a date-section header
+/// ("Today", "Yesterday", "This Week", "Earlier") or a notification.
+class _ListRow {
+  final String? header;
+  final AppNotification? notification;
+  const _ListRow.header(this.header) : notification = null;
+  const _ListRow.item(this.notification) : header = null;
+  bool get isHeader => header != null;
+}
+
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
@@ -150,12 +193,63 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  /// Buckets a date into one of the four section labels shown in the list.
+  String _groupLabel(DateTime? dt) {
+    if (dt == null) return 'Earlier';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final date = DateTime(dt.year, dt.month, dt.day);
+    final diff = today.difference(date).inDays;
+    if (diff <= 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    if (diff < 7) return 'This Week';
+    return 'Earlier';
+  }
+
+  /// Groups the current filtered list into Today / Yesterday / This Week /
+  /// Earlier sections, newest first, and flattens it into header + item
+  /// rows ready for a single ListView.builder.
+  List<_ListRow> _buildGroupedRows() {
+    final sorted = [..._filteredNotifications]..sort((a, b) {
+        final da = a.createdAt;
+        final db = b.createdAt;
+        if (da == null && db == null) return 0;
+        if (da == null) return 1;
+        if (db == null) return -1;
+        return db.compareTo(da);
+      });
+
+    const groupOrder = ['Today', 'Yesterday', 'This Week', 'Earlier'];
+    final buckets = <String, List<AppNotification>>{
+      for (final g in groupOrder) g: <AppNotification>[],
+    };
+    for (final n in sorted) {
+      buckets[_groupLabel(n.createdAt)]!.add(n);
+    }
+
+    final rows = <_ListRow>[];
+    for (final group in groupOrder) {
+      final items = buckets[group]!;
+      if (items.isEmpty) continue;
+      rows.add(_ListRow.header(group));
+      for (final n in items) {
+        rows.add(_ListRow.item(n));
+      }
+    }
+    return rows;
+  }
+
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: const Color(0xFFE7ECE9),
+      highlightColor: const Color(0xFFF6FAF8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -164,7 +258,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
             const SizedBox(width: 12),
@@ -175,28 +269,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   Container(
                     width: double.infinity,
                     height: 14,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.6,
                     height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                   const SizedBox(height: 6),
                   Container(
                     width: 80,
                     height: 10,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                   ),
                 ],
               ),
@@ -207,171 +292,171 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  Widget _buildSectionHeader(String label, int count) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 18, 4, 10),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: _T.textPrimary,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: _T.primarySoft,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '$count',
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: _T.primaryDark),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: Container(height: 1, color: _T.border)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNotificationItem(AppNotification n) {
     final isUnread = n.isRead != true;
-    final icon = isUnread 
-        ? Icons.notifications_active 
-        : Icons.notifications_none;
-    final iconColor = isUnread ? Colors.blue.shade700 : Colors.grey.shade400;
+    final accent = _typeColor(n.type);
+    final icon = isUnread ? Icons.notifications_active_rounded : Icons.notifications_none_rounded;
 
-    return Material(
-      color: isUnread ? Colors.blue.shade50 : Colors.white,
-      child: InkWell(
-        onTap: () => _markOneAsRead(n),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isUnread ? Colors.blue.shade100 : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(10),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: isUnread ? _T.primarySoft.withOpacity(0.5) : _T.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: isUnread ? _T.primary.withOpacity(0.25) : _T.border),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 3)),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _markOneAsRead(n),
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(13),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(icon, color: accent, size: 20),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            n.title ?? 'Notification',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
-                              color: isUnread ? Colors.grey.shade900 : Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
-                        if (isUnread)
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                      ],
-                    ),
-                    if ((n.description ?? '').trim().isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        n.description!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        if (n.type != null) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getTypeColor(n.type!).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
                             child: Text(
-                              n.type!,
+                              n.title ?? 'Notification',
                               style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: _getTypeColor(n.type!),
+                                fontSize: 14,
+                                fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
+                                color: _T.textPrimary,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          if (isUnread)
+                            Container(
+                              width: 7,
+                              height: 7,
+                              margin: const EdgeInsets.only(left: 6, top: 3),
+                              decoration: const BoxDecoration(shape: BoxShape.circle, color: _T.primary),
+                            ),
                         ],
+                      ),
+                      if ((n.description ?? '').trim().isNotEmpty) ...[
+                        const SizedBox(height: 4),
                         Text(
-                          _formatTime(n.createdAt),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
+                          n.description!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12.5, color: _T.textSecondary, height: 1.35),
                         ),
                       ],
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          if (n.type != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                color: accent.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                n.type!,
+                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: accent),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            _formatTime(n.createdAt),
+                            style: const TextStyle(fontSize: 11, color: _T.textMuted),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Color _getTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'info':
-        return Colors.blue;
-      case 'success':
-        return Colors.green;
-      case 'warning':
-        return Colors.orange;
-      case 'error':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final rows = _buildGroupedRows();
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: _T.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _T.surface,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         title: Row(
           children: [
-            Icon(
-              Icons.notifications_outlined,
-              color: Colors.blue.shade700,
-              size: 24,
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(color: _T.primarySoft, borderRadius: BorderRadius.circular(10)),
+              child: const Icon(Icons.notifications_outlined, color: _T.primaryDark, size: 19),
             ),
-            const SizedBox(width: 8),
-            Text(
-              'Notifications',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey.shade900,
-              ),
-            ),
+            // const SizedBox(width: 10),
+            // const Text(
+            //   'Notifications',
+            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: _T.textPrimary),
+            // ),
             const SizedBox(width: 8),
             if (_unreadCount > 0)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade700,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: _T.primary, borderRadius: BorderRadius.circular(12)),
                 child: Text(
                   '$_unreadCount',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
                 ),
               ),
           ],
@@ -380,34 +465,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
           if (_unreadCount > 0)
             TextButton.icon(
               onPressed: _markAllAsRead,
-              icon: const Icon(Icons.done_all_outlined, size: 18),
-              label: const Text(
-                'Mark all read',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue.shade700,
-              ),
+              icon: const Icon(Icons.done_all_rounded, size: 17),
+              label: const Text('Mark all read', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+              style: TextButton.styleFrom(foregroundColor: _T.primaryDark),
             ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: Colors.grey.shade200,
-          ),
+          child: Container(height: 1, color: _T.border),
         ),
       ),
       body: Column(
         children: [
-          // Filter Tabs
           Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: _T.surface,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
                 _buildFilterChip('All', 'all'),
@@ -420,48 +493,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ],
             ),
           ),
-          Divider(
-            height: 1,
-            color: Colors.grey.shade200,
-          ),
-          // Notifications List with Pull to Refresh
+          Container(height: 1, color: _T.border),
           Expanded(
             child: _loading
-                ? ListView.separated(
-                    padding: const EdgeInsets.all(0),
-                    itemCount: 8,
-                    separatorBuilder: (_, __) => Divider(
-                      height: 1,
-                      color: Colors.grey.shade200,
-                    ),
+                ? ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: 6,
                     itemBuilder: (context, index) => _buildShimmerItem(),
                   )
-                : _filteredNotifications.isEmpty
+                : rows.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.notifications_off_outlined,
-                              size: 64,
-                              color: Colors.grey.shade300,
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: const BoxDecoration(color: _T.primarySoft, shape: BoxShape.circle),
+                              child: const Icon(Icons.notifications_off_rounded, size: 40, color: _T.primaryDark),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
+                            const SizedBox(height: 18),
+                            const Text(
                               'No notifications',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700, color: _T.textPrimary),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
+                            const SizedBox(height: 6),
+                            const Text(
                               "You're all caught up!",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade500,
-                              ),
+                              style: TextStyle(fontSize: 13.5, color: _T.textSecondary),
                             ),
                           ],
                         ),
@@ -471,26 +529,32 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         onRefresh: _refresh,
                         enablePullDown: true,
                         header: const WaterDropHeader(
-                          waterDropColor: Colors.blue,
-                          complete: Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                          ),
-                          failed: Icon(
-                            Icons.error,
-                            color: Colors.red,
-                          ),
+                          waterDropColor: _T.primary,
+                          complete: Icon(Icons.check_circle_rounded, color: _T.primary),
+                          failed: Icon(Icons.error_rounded, color: _T.error),
                         ),
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(0),
-                          itemCount: _filteredNotifications.length,
-                          separatorBuilder: (_, __) => Divider(
-                            height: 1,
-                            color: Colors.grey.shade200,
-                          ),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+                          itemCount: rows.length,
                           itemBuilder: (context, index) {
-                            final n = _filteredNotifications[index];
-                            return _buildNotificationItem(n);
+                            final row = rows[index];
+                            final child = row.isHeader
+                                ? _buildSectionHeader(
+                                    row.header!,
+                                    rows.skip(index + 1).takeWhile((r) => !r.isHeader).length,
+                                  )
+                                : _buildNotificationItem(row.notification!);
+
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: 1),
+                              duration: Duration(milliseconds: 260 + (index * 25).clamp(0, 300)),
+                              curve: Curves.easeOut,
+                              builder: (context, value, c) => Opacity(
+                                opacity: value,
+                                child: Transform.translate(offset: Offset(0, (1 - value) * 10), child: c),
+                              ),
+                              child: child,
+                            );
                           },
                         ),
                       ),
@@ -508,24 +572,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
         label,
         style: TextStyle(
           fontSize: 12,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          color: isSelected ? Colors.blue.shade700 : Colors.grey.shade600,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: isSelected ? _T.primaryDark : _T.textSecondary,
         ),
       ),
       onSelected: (_) {
-        setState(() {
-          _filterType = value;
-        });
+        setState(() => _filterType = value);
         _applyFilter();
       },
-      backgroundColor: Colors.grey.shade50,
-      selectedColor: Colors.blue.shade50,
+      backgroundColor: _T.bg,
+      selectedColor: _T.primarySoft,
+      showCheckmark: false,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: isSelected ? Colors.blue.shade700 : Colors.grey.shade300,
-          width: isSelected ? 2 : 1,
-        ),
+        side: BorderSide(color: isSelected ? _T.primary : _T.border, width: isSelected ? 1.4 : 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     );

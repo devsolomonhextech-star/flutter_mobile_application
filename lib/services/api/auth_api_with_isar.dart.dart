@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'package:doctor_app/data/models/auth_models.dart';
 import 'package:doctor_app/data/models/user_models.dart';
 import 'package:doctor_app/services/api/auth_api.dart';
 import 'package:doctor_app/services/isar/isar_service.dart';
-import 'package:http/http.dart' as http;
-import '../auth_models.dart';
 
 class AuthApiWithIsar extends AuthApi {
   // Override the login method to include Isar functionality
